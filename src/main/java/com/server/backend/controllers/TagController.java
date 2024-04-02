@@ -30,6 +30,6 @@ public class TagController {
 
     @PostMapping("/add")
     public ResponseEntity<?> addTags(@RequestBody Set<String> tagNames) {
-        return ResponseEntity.ok(tagService.saveAllTags(tagNames));
+        return ResponseEntity.ok(tagService.saveAll(tagNames));
     }
 }

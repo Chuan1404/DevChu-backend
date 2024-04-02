@@ -1,5 +1,6 @@
 package com.server.backend.dto;
 
+import com.server.backend.models.FileTag;
 import com.server.backend.models.FileUploaded;
 import com.server.backend.models.Tag;
 import com.server.backend.models.User;
@@ -31,7 +32,7 @@ public class FileUploadedDTO {
     private UserDTO user;
     private Set<String> tags;
     private String type;
-    public  FileUploadedDTO(FileUploaded fileUploaded) {
+    public  FileUploadedDTO(FileUploaded fileUploaded, Set<FileTag> fileTags) {
         this.id = fileUploaded.getId();
         this.title = fileUploaded.getTitle();
         this.price = fileUploaded.getPrice();
@@ -44,7 +45,7 @@ public class FileUploadedDTO {
         this.width = fileUploaded.getWidth();
         this.height = fileUploaded.getHeight();
         this.user = null;
-        this.tags = fileUploaded.getTag().stream().map(tag -> tag.getName().toString()).collect(Collectors.toSet());
+//        this.tags = fileUploaded.getTag().stream().map(tag -> tag.getName().toString()).collect(Collectors.toSet());
         this.type = fileUploaded.getType().toString();
         if(fileUploaded.getUser() != null) {
             this.user = new UserDTO(fileUploaded.getUser());

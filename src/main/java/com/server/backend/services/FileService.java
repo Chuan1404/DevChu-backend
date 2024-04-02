@@ -20,17 +20,25 @@ import com.server.backend.utils.ImageHandler;
 import com.server.backend.utils.Pagination;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.server.backend.repositories.FileRepository;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 
@@ -53,6 +61,9 @@ public class FileService {
 
     @Autowired
     private FileSpecification fileSpecification;
+
+    @Value("${url.model.classification}")
+    private String classificationURL;
 
     @Autowired
     private Pagination pagination;
@@ -119,6 +130,24 @@ public class FileService {
         File file = FileHandler.multipartToFile(multipartFile);
         if (multipartFile.getContentType().startsWith("image/")) {
             ResponseEntity response = imageHandler.checkFile(file);
+
+            // get prediction
+            if(response.getStatusCode().is2xxSuccessful()) {
+                RestTemplate restTemplate = new RestTemplate();
+
+                HttpHeaders httpHeaders = new HttpHeaders();
+                httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+                FileSystemResource fileSystemResource = new FileSystemResource(file);
+
+                MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+                body.add("file", fileSystemResource);
+
+                HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, httpHeaders);
+                ResponseEntity<Map> res = restTemplate.postForEntity(classificationURL + "/predict", requestEntity, Map.class);
+                response =  res;
+            }
+
             file.delete();
             return response;
         }
@@ -173,7 +202,7 @@ public class FileService {
     // save file
     public FileUploaded saveOrUpdateFile(FileUploaded fileUploaded, UpdateFileRequest request) {
         if (fileUploaded.getId() != null) {
-            fileUploaded.setTag(tagService.saveAllTags(request.getTags()));
+//            fileUploaded.setTag(tagService.saveAllTags(request.getTags()));
             fileUploaded.setPrice(request.getPrice());
             fileUploaded.setTitle(request.getTitle());
             fileUploaded.setIsActive(request.getIsActive());
@@ -229,4 +258,6 @@ public class FileService {
 
         return tmp;
     }
+
+
 }

@@ -16,7 +16,6 @@ import org.hibernate.annotations.Fetch;
 @Table(name = "file")
 @Builder
 public class FileUploaded {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -37,10 +36,4 @@ public class FileUploaded {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-
-    @ManyToMany
-    @JoinTable(name = "file_tag", joinColumns = @JoinColumn(name = "file_id"), inverseJoinColumns = @JoinColumn(name = "tag_id"))
-    private Set<Tag> Tag;
-
-
 }

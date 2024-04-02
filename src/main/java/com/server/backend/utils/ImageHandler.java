@@ -30,7 +30,7 @@ public class ImageHandler extends FileHandler {
             return ResponseEntity.badRequest().body(ErrorResponse.builder().error("Read file fail").build());
         if (rootImage.getHeight() < minimumPixels && rootImage.getWidth() < minimumPixels)
             return ResponseEntity.badRequest().body(ErrorResponse.builder().error(String.format("Yêu cầu chất lượng tối thiểu %.0f pixels. Hiện tại là %dx%d", minimumPixels, rootImage.getWidth(), rootImage.getHeight())).build());
-        return ResponseEntity.ok(Message.builder().message("Success").build());
+        return ResponseEntity.ok(new Message("Success"));
     }
 
     @Override

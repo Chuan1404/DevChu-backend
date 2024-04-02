@@ -5,13 +5,11 @@ import com.server.backend.dto.FileUploadedDTO;
 import com.server.backend.dto.request.UpdateFileRequest;
 import com.server.backend.dto.response.ErrorResponse;
 import com.server.backend.dto.response.Message;
+import com.server.backend.models.FileTag;
 import com.server.backend.models.FileUploaded;
 import com.server.backend.models.Tag;
 import com.server.backend.models.UsageRight;
-import com.server.backend.services.AmazonS3Service;
-import com.server.backend.services.FileService;
-import com.server.backend.services.TagService;
-import com.server.backend.services.UsageRightService;
+import com.server.backend.services.*;
 import com.server.backend.utils.FileHandler;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +30,9 @@ public class FileController {
 
     @Autowired
     private FileService fileService;
+
+    @Autowired
+    private FileTagService fileTagService;
 
     @Autowired
     private TagService tagService;
@@ -66,17 +67,21 @@ public class FileController {
 
     @PostMapping(value = "/upload")
     @Transactional
-    public ResponseEntity<?> uploadFile(@RequestParam(name = "file") MultipartFile multipartFile, @RequestParam(name = "tags") String tagStr, @RequestParam(name = "title") String title, @RequestParam(name = "price") Double price) {
-        Set<Tag> tags = tagService.saveAllTags(Arrays.stream(tagStr.split(",")).collect(Collectors.toSet()));
+    public ResponseEntity<?> uploadFile(@RequestParam(name = "file") MultipartFile multipartFile,
+                                        @RequestParam(name = "tags") String tagStr,
+                                        @RequestParam(name = "probs") String probStr,
+                                        @RequestParam(name = "title") String title, @RequestParam(name = "price") Double price) {
+
         FileUploaded fileUploaded = fileService.uploadFile(multipartFile);
-        fileUploaded.setTag(tags);
         fileUploaded.setTitle(title);
         fileUploaded.setPrice(price);
         fileUploaded.setType(FileHandler.getTypeFromMultiPart(multipartFile));
-        System.out.println(FileHandler.getTypeFromMultiPart(multipartFile));
-        fileService.saveOrUpdateFile(fileUploaded, null);
+        fileUploaded = fileService.saveOrUpdateFile(fileUploaded, null);
 
-        return ResponseEntity.ok(new FileUploadedDTO(fileUploaded));
+        tagService.saveAll(Arrays.stream(tagStr.split(",")).collect(Collectors.toSet()));
+        Set<FileTag> ftags = fileTagService.saveAll(fileUploaded, tagStr, probStr);
+
+        return ResponseEntity.ok(new FileUploadedDTO(fileUploaded, ftags));
     }
 
     @PostMapping(value = "/update/{id}")

@@ -22,12 +22,16 @@ public class TagService {
         return tagRepository.findByKw(kw);
     }
 
+    public Tag findByName(String name) {
+        return tagRepository.findByName(name).orElse(null);
+    }
+
     public List<Tag> getTop() {
         return tagRepository.findTop();
     }
 
     @Transactional
-    public Set<Tag> saveAllTags(Set<String> tags) {
+    public Set<Tag> saveAll(Set<String> tags) {
         tags = tags.stream().filter(item -> !item.trim().isEmpty()).map(item -> item.trim().toLowerCase()).collect(Collectors.toSet());
         Set<Tag> toTags = new HashSet<>();
 
