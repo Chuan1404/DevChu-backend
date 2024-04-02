@@ -9,12 +9,15 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.server.backend.dto.FileTagDTO;
 import com.server.backend.dto.FileUploadedDTO;
 import com.server.backend.dto.request.UpdateFileRequest;
 import com.server.backend.dto.response.ErrorResponse;
 import com.server.backend.enums.FileQuality;
 import com.server.backend.models.*;
+import com.server.backend.repositories.FileTagRepository;
 import com.server.backend.repositories.specification.FileSpecification;
+import com.server.backend.repositories.specification.FileTagSpecification;
 import com.server.backend.utils.FileHandler;
 import com.server.backend.utils.ImageHandler;
 import com.server.backend.utils.Pagination;
@@ -60,13 +63,19 @@ public class FileService {
     private TagService tagService;
 
     @Autowired
+    private FileTagService fileTagService;
+
+    @Autowired
     private FileSpecification fileSpecification;
 
-    @Value("${url.model.classification}")
-    private String classificationURL;
+    @Autowired
+    private FileTagSpecification fileTagSpecification;
 
     @Autowired
     private Pagination pagination;
+
+    @Value("${url.model.classification}")
+    private String classificationURL;
 
     // get files
     public Page<FileUploadedDTO> getFiles(Map<String, String> params, boolean isAllowUnActived) {
@@ -78,21 +87,25 @@ public class FileService {
         // query
         List<Specification> specs = new ArrayList<>();
 
-        if (!isAllowUnActived) specs.add(fileSpecification.activeFiles());
-        if (params.get("kw") != null) specs.add(fileSpecification.fileTags(params.get("kw")));
-        if (params.get("fromPrice") != null && !params.get("fromPrice").isEmpty()) specs.add(fileSpecification.fromPrice(Double.parseDouble(params.get("fromPrice"))));
-        if (params.get("toPrice") != null && !params.get("toPrice").isEmpty()) specs.add(fileSpecification.toPrice(Double.parseDouble(params.get("toPrice"))));
-        if (params.get("type") != null) specs.add(fileSpecification.fileType(List.of(params.get("type").split(","))));
+        if (!isAllowUnActived) specs.add(fileTagSpecification.activeFiles());
+        if (params.get("kw") != null) specs.add(fileTagSpecification.fileTags(params.get("kw")));
+        if (params.get("fromPrice") != null && !params.get("fromPrice").isEmpty()) specs.add(fileTagSpecification.fromPrice(Double.parseDouble(params.get("fromPrice"))));
+        if (params.get("toPrice") != null && !params.get("toPrice").isEmpty()) specs.add(fileTagSpecification.toPrice(Double.parseDouble(params.get("toPrice"))));
+        if (params.get("type") != null) specs.add(fileTagSpecification.fileType(List.of(params.get("type").split(","))));
 
-
-        Page<FileUploaded> page = fileRepository.findAll(specs.stream()
+        Page<FileTag> page = fileTagService.findAll(specs.stream()
                 .reduce(Specification.where(null), Specification::and), pageable);
 
-        List<FileUploadedDTO> dtoList = page
-                .getContent()
-                .stream()
-                .map(FileUploadedDTO::new)
-                .collect(Collectors.toList());
+        Map<FileUploaded, List<FileTag>> fileGroup = page.getContent().stream().collect(Collectors.groupingBy(FileTag::getFile));
+
+        List<FileUploadedDTO> dtoList = new ArrayList<>();
+        for (Map.Entry<FileUploaded, List<FileTag>> entry : fileGroup.entrySet()) {
+            FileUploaded file = entry.getKey();
+            List<FileTag> tags = entry.getValue();
+            dtoList.add(new FileUploadedDTO(file, tags.stream().collect(Collectors.toSet())));
+        }
+
+
         Page<FileUploadedDTO> dtoPage = new PageImpl<>(dtoList, page.getPageable(), page.getTotalElements());
 
         return dtoPage;

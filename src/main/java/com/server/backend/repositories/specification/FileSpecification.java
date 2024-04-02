@@ -17,10 +17,7 @@ import java.util.stream.Collectors;
 public class FileSpecification {
     public Specification<FileUploaded> activeFiles() {
         return (root, query, criteriaBuilder) -> criteriaBuilder.isTrue(root.get("isActive"));
-    }
-
-    ;
-
+    };
 
     public Specification<FileUploaded> fileTags(String kw) {
         return (root, query, criteriaBuilder) -> {

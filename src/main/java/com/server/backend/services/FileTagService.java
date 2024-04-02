@@ -5,6 +5,9 @@ import com.server.backend.models.FileUploaded;
 import com.server.backend.models.Tag;
 import com.server.backend.repositories.FileTagRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -20,6 +23,10 @@ public class FileTagService {
     private FileTagRepository fileTagRepository;
 
     @Autowired TagService tagService;
+
+    public Page<FileTag> findAll(Specification<FileTag> spec, Pageable pageable) {
+        return  fileTagRepository.findAll(spec, pageable);
+    }
 
     public Set<FileTag> saveAll(FileUploaded fileUploaded, String tagStr, String probStr) {
         ArrayList<String> tagArr = (ArrayList<String>) Arrays.stream(tagStr.split(",")).collect(Collectors.toList());

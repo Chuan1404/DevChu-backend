@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -30,9 +31,9 @@ public class FileUploadedDTO {
     private int width;
     private int height;
     private UserDTO user;
-    private Set<String> tags;
+    private Set<FileTagDTO> tags;
     private String type;
-    public  FileUploadedDTO(FileUploaded fileUploaded, Set<FileTag> fileTags) {
+    public  FileUploadedDTO(FileUploaded fileUploaded) {
         this.id = fileUploaded.getId();
         this.title = fileUploaded.getTitle();
         this.price = fileUploaded.getPrice();
@@ -50,5 +51,10 @@ public class FileUploadedDTO {
         if(fileUploaded.getUser() != null) {
             this.user = new UserDTO(fileUploaded.getUser());
         }
+    }
+
+    public  FileUploadedDTO(FileUploaded fileUploaded, Set<FileTag> fileTags) {
+        this(fileUploaded);
+        this.tags = fileTags.stream().map(FileTagDTO::new).collect(Collectors.toSet());
     }
 }

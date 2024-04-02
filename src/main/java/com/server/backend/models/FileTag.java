@@ -18,9 +18,11 @@ public class FileTag {
     private Integer id;
 
     @ManyToOne
+    @JoinColumn(name = "file_id", referencedColumnName = "id")
     private FileUploaded file;
 
     @ManyToOne
+    @JoinColumn(name = "tag_id", referencedColumnName = "id")
     private Tag tag;
 
     private double probs;
