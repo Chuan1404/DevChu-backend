@@ -21,7 +21,7 @@ public class ImageHandler extends FileHandler {
     public static double display = 640;
     public static double medium = 1280;
     public static double high = 1920;
-    public static double minimumPixels = 3000;
+    public static double minimumPixels = 2000;
 
     @Override
     public ResponseEntity<?> checkFile(File file) {

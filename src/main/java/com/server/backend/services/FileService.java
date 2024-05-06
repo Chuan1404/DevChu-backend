@@ -179,6 +179,9 @@ public class FileService {
 
                 // not handle avatar type
                 if (fileQuality == FileQuality.AVATAR) continue;
+
+                // add hidden watermark here
+
                 // if root file -> upload
                 if (fileQuality == FileQuality.ROOT) {
                     result.put(fileQuality.name().toLowerCase(), amazonS3Service.uploadFile(file, fileQuality));
