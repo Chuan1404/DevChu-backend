@@ -37,7 +37,7 @@ public class ReceiptService {
     public Page<Receipt> getByUserId(Map<String, String> params) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        Pageable pageable = pagination.page(params.get("page"), params.get("limit"));
+        Pageable pageable = pagination.page(params.get("page"), params.get("limit"), null);
         Page<Receipt>  receipts = receiptRepository.findByUserId(user.getId(), pageable);
 
         return receipts;

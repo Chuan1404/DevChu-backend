@@ -45,7 +45,7 @@ public class UserService implements UserDetailsService {
     public Page<UserDTO> getAllUser(Map<String, String> params) {
 
         // pagination
-        Pageable pageable = pagination.page(params.get("page"), params.get("limit"));
+        Pageable pageable = pagination.page(params.get("page"), params.get("limit"), null);
 
         if (params.get("role") == null)
             params.put("role", UserRole.ROLE_CUSTOMER.name());

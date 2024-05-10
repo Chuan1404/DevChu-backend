@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 
 import com.amazonaws.services.s3.model.*;
 import com.server.backend.enums.FileQuality;
@@ -12,7 +13,15 @@ import com.server.backend.models.FileUploaded;
 import com.server.backend.repositories.FileRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.amazonaws.services.s3.AmazonS3;
@@ -28,6 +37,9 @@ public class AmazonS3Service {
     @Value("${aws.s3.bucket.private.name}")
     private String privateBucket;
 
+    @Value("${url.model.copy_right}")
+    private String copyRightURL;
+
     @Autowired
     private AmazonS3 amazonS3;
 
@@ -40,9 +52,38 @@ public class AmazonS3Service {
     }
 
     public String uploadFile(File file, FileQuality quality) {
+        // sign here
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        FileSystemResource fileSystemResource = new FileSystemResource(file);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", fileSystemResource);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, httpHeaders);
+        ResponseEntity<byte[]> response = restTemplate.postForEntity(copyRightURL + "/hide_signature", requestEntity, byte[].class);
+        byte[] imageData = response.getBody();
+
+        String filePath = file.getName(); // Path where you want to save the file
+
+        try {
+            System.out.println(filePath);
+            FileOutputStream fos = new FileOutputStream(filePath);
+            fos.write(imageData);
+            file.delete();
+            fos.close();
+        } catch (IOException e) {
+            System.err.println("Error writing file: " + e.getMessage());
+            file.delete();
+            return null;
+        }
+        System.out.println("Done");
         String currentBucket = quality != FileQuality.ROOT ? publicBucket : privateBucket;
         // bucket/type/folder/file
-        String path = String.format("images/%s/%s", quality.name().toLowerCase(), file.getName());
+        String path = String.format("images/%s/%s", quality.name().toLowerCase(), filePath);
 
         PutObjectRequest putObjectRequest = new PutObjectRequest(currentBucket, path, file);
         PutObjectResult result = amazonS3.putObject(putObjectRequest);

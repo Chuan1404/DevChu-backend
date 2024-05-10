@@ -5,6 +5,7 @@ import com.server.backend.models.FileTag;
 import com.server.backend.models.FileUploaded;
 import com.server.backend.models.Tag;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
 
@@ -20,11 +21,14 @@ public class FileTagSpecification {
         };
     }
 
-    public Specification<FileTag> fileTags(String kw) {
+    public Specification<FileTag> fileTags(List<String> keywords) {
         return (root, query, criteriaBuilder) -> {
-            query.distinct(true);
             Join<FileTag, Tag> fileJoin = root.join("tag");
-            return criteriaBuilder.like(fileJoin.get("name"), "%" + kw + "%");
+            Predicate[] predicates = keywords.stream()
+                    .map(keyword -> criteriaBuilder.like(fileJoin.get("name"), "%" + keyword + "%"))
+                    .toArray(Predicate[]::new);
+            Predicate finalPredicate = criteriaBuilder.or(predicates);
+            return finalPredicate;
         };
     }
 

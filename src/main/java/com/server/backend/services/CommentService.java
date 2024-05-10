@@ -36,7 +36,7 @@ public class CommentService {
 
     public Page<Comment> getAllComments(Map<String, String> params) {
         // pagination
-        Pageable pageable = pagination.page(params.get("page"), params.get("limit"));
+        Pageable pageable = pagination.page(params.get("page"), params.get("limit"), null);
 
         List<Specification> specs = new ArrayList<>();
         specs.add(commentSpecification.sortByTime());

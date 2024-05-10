@@ -57,4 +57,11 @@ public class FileUploadedDTO {
         this(fileUploaded);
         this.tags = fileTags.stream().map(FileTagDTO::new).collect(Collectors.toSet());
     }
+
+    public double getTotalProbs() {
+        if(this.tags != null) {
+            return tags.stream().mapToDouble(item -> item.getProbs()).sum();
+        }
+        return 0;
+    }
 }

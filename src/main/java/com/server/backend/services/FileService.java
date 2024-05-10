@@ -26,10 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.FileSystemResource;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -82,13 +79,17 @@ public class FileService {
 
 
         // pagination
-        Pageable pageable = pagination.page(params.get("page"), params.get("limit"));
+        Pageable pageable = pagination.page(params.get("page"), params.get("limit"), null);
+
 
         // query
         List<Specification> specs = new ArrayList<>();
 
         if (!isAllowUnActived) specs.add(fileTagSpecification.activeFiles());
-        if (params.get("kw") != null) specs.add(fileTagSpecification.fileTags(params.get("kw")));
+        if (params.get("kw") != null) {
+            List<String> keywords = Arrays.asList(params.get("kw").split("\\s+"));
+            specs.add(fileTagSpecification.fileTags(keywords));
+        };
         if (params.get("fromPrice") != null && !params.get("fromPrice").isEmpty()) specs.add(fileTagSpecification.fromPrice(Double.parseDouble(params.get("fromPrice"))));
         if (params.get("toPrice") != null && !params.get("toPrice").isEmpty()) specs.add(fileTagSpecification.toPrice(Double.parseDouble(params.get("toPrice"))));
         if (params.get("type") != null) specs.add(fileTagSpecification.fileType(List.of(params.get("type").split(","))));
@@ -105,7 +106,7 @@ public class FileService {
             dtoList.add(new FileUploadedDTO(file, tags.stream().collect(Collectors.toSet())));
         }
 
-
+        dtoList.sort(Comparator.comparingDouble(FileUploadedDTO::getTotalProbs).reversed());
         Page<FileUploadedDTO> dtoPage = new PageImpl<>(dtoList, page.getPageable(), page.getTotalElements());
 
         return dtoPage;
@@ -132,7 +133,7 @@ public class FileService {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         // pagination
-        Pageable pageable = pagination.page(params.get("page"), params.get("limit"));
+        Pageable pageable = pagination.page(params.get("page"), params.get("limit"), null);
         Page<FileUploaded> page = fileRepository.findByUserId(user.getId(), pageable);
 
         return page;
