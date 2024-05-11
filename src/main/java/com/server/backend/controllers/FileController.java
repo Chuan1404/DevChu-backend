@@ -7,7 +7,6 @@ import com.server.backend.dto.response.ErrorResponse;
 import com.server.backend.dto.response.Message;
 import com.server.backend.models.FileTag;
 import com.server.backend.models.FileUploaded;
-import com.server.backend.models.Tag;
 import com.server.backend.models.UsageRight;
 import com.server.backend.services.*;
 import com.server.backend.utils.FileHandler;
@@ -55,7 +54,6 @@ public class FileController {
     @GetMapping(value = "/{id}")
     public ResponseEntity<?> detail(@PathVariable String id) {
         FileUploaded fileUploaded = fileService.getFileById(id);
-        System.out.println(fileUploaded.getId());
         if (fileUploaded == null) return ResponseEntity.badRequest().body(new ErrorResponse("File does not exist"));
         return ResponseEntity.ok(new FileUploadedDTO(fileUploaded));
     }

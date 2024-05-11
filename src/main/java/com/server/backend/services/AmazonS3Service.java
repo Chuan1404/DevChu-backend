@@ -80,7 +80,7 @@ public class AmazonS3Service {
             file.delete();
             return null;
         }
-        System.out.println("Done");
+        
         String currentBucket = quality != FileQuality.ROOT ? publicBucket : privateBucket;
         // bucket/type/folder/file
         String path = String.format("images/%s/%s", quality.name().toLowerCase(), filePath);

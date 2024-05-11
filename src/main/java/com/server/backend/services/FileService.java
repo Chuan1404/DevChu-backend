@@ -74,6 +74,9 @@ public class FileService {
     @Value("${url.model.classification}")
     private String classificationURL;
 
+    @Value("${url.model.copy_right}")
+    private String copyRightURL;
+
     // get files
     public Page<FileUploadedDTO> getFiles(Map<String, String> params, boolean isAllowUnActived) {
 
@@ -164,6 +167,35 @@ public class FileService {
 
             file.delete();
             return response;
+        }
+        return ResponseEntity.badRequest().body(new ErrorResponse(String.format("Không hỗ trợ loại file này", multipartFile.getContentType())));
+    }
+
+    public ResponseEntity<?> extractFile(MultipartFile multipartFile) {
+        File file = FileHandler.multipartToFile(multipartFile);
+        if (multipartFile.getContentType().startsWith("image/")) {
+
+            RestTemplate restTemplate = new RestTemplate();
+
+            HttpHeaders httpHeaders = new HttpHeaders();
+            httpHeaders.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            FileSystemResource fileSystemResource = new FileSystemResource(file);
+
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("file", fileSystemResource);
+
+            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, httpHeaders);
+            ResponseEntity<byte[]> response = restTemplate.postForEntity(copyRightURL + "/extract_signature", requestEntity, byte[].class);
+            byte[] data = response.getBody();
+
+            ByteArrayResource resource = new ByteArrayResource(data);
+            return ResponseEntity
+                    .ok()
+                    .contentLength(data.length)
+                    .header("Content-type", "application/octet-stream")
+                    .header("Content-disposition", "attachment")
+                    .body(resource);
         }
         return ResponseEntity.badRequest().body(new ErrorResponse(String.format("Không hỗ trợ loại file này", multipartFile.getContentType())));
     }

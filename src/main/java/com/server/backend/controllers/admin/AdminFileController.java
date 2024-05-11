@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -25,5 +26,11 @@ public class AdminFileController {
             return ResponseEntity.badRequest().body(new ErrorResponse("Parameter are not valid"));
         }
         return ResponseEntity.ok(pages);
+    }
+
+    @PostMapping(value = "/extract")
+    public ResponseEntity<?> extract(@RequestParam(name = "file") MultipartFile multipartFile) {
+        ResponseEntity<?> response = fileService.extractFile(multipartFile);
+        return response;
     }
 }
