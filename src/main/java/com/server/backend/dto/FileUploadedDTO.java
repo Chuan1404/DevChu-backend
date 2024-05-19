@@ -60,7 +60,10 @@ public class FileUploadedDTO {
 
     public double getTotalProbs() {
         if(this.tags != null) {
-            return tags.stream().mapToDouble(item -> item.getProbs()).sum();
+            double sum = tags.stream()
+                    .mapToDouble(item -> item.getProbs())
+                    .sum();
+            return sum;
         }
         return 0;
     }

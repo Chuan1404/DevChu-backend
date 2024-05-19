@@ -89,7 +89,7 @@ public class FileService {
         List<Specification> specs = new ArrayList<>();
 
         if (!isAllowUnActived) specs.add(fileTagSpecification.activeFiles());
-        if (params.get("kw") != null) {
+        if (params.get("kw") != null && !params.get("kw").isEmpty()) {
             List<String> keywords = Arrays.asList(params.get("kw").split("\\s+"));
             specs.add(fileTagSpecification.fileTags(keywords));
         };

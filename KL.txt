@@ -1,0 +1,18 @@
+- Kiến trúc phần mềm:
++ client - server
++ microservices
+
+- Tools: Docker, git/github, CD/CI
+- Business: thực tế + giải quyết vấn đề nào đó
+AI (jira)
+
+
+- AI: chỉ cần hiểu ý tưởng và áp dụng
++ Nhận dạng khuôn mặt
++ Nhận dạng cảm xúc (văn bản -> tích cực, tiêu cực, trung bình)
++ Phân loại văn bản
++ ...
+
+phân loại hình ảnh, nhận dạng đối tượng
+chữ ký điện tử
+
