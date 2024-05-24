@@ -2,3 +2,26 @@ Tài khoản: admin@gmail.com - 123456
 
 Momo: 0559123451 - 111111
 Mã pin Momo: 000000
+
+ Các bước cài đặt
+Bước 1: Cài đặt MySQL Server (version 8.0.34) với port mặc định là 3306 và đặt mật khẩu cho tài khoản root là Admin@123
+
+Mở command line và gõ lệnh "mysql --version" kiểm tra MySQL Server đã cài đặt thành công chưa. Nếu chưa, hãy thêm đường dẫn tới thư mục SQL Server vào mục Path của environment variables. Sau đó hãy thử lại "mysql --version"
+Sau đó hãy gõ lệnh "mysql -h localhost -P 3306 -u root -p" và nhập password là "Admin@123"
+Tiếp theo, hãy chạy file database.sql được lưu ở trong thư mục /resources bằng câu lệnh "source duong_dan_den_file_database.sql". Sau đó, giữ cho command line tiếp tục chạy, không được tắt.
+Bước 2: Tải thư mục apache-maven version 3.9.2, giải nén và thêm đường dẫn tới thư mục maven vào mục Path của environment variables, sau đó hãy thử lệnh "mvn --version"
+
+Bước 3: Cài đặt jdk (version 19) và thử câu lệnh "java --version". Nếu thành công, hãy mở một cmd mới ở bên trong thư mục Devchu-backend và chạy câu lệnh sau: "mvn spring-boot:run" và để yên đó, không được tắt cmd
+
+Bước 4: Cài đặt Node.js (version 18.16.0) và thử câu lệnh "node --version" trong cmd mới. Nếu thành công, hãy làm trình tự như sau:
+
+Mở cmd trong thư mục DevChu-client và chạy lệnh "npm i" để cài đặt thư viên liên quan. Sau đó chạy "npm start --port 3000", không được tắt cmd
+Tương tự với DevChu-admin nhưng sau đó chạy lệnh "npm start --port 3001", không được tắt cmd
+Quá trình này sẽ diễn ra lâu với máy yếu
+Đến đây, hệ thống cơ bản đã hoạt động được với 4 command line. Nhưng do hệ thống thực hiện thanh toán bằng Momo và để test chức năng này, yêu cầu thực hiện tiếp tục các bước sau:
+
+Bước 5: Cài đặt Python (3.10) và mở tới thư mục DevChu-AI => cài đặt thư viện bằng file requirement.txt
+, sau đó cd tới thư mục models và chạy câu lệnh sau "python .\manage.py runserver"
+
+Bước 6: Cài đặt bất kì máy điện thoại ảo và tải ứng dụng Momo App Test và đăng nhập với tài khoản Momo bên trên. Mục đích phục vụ cho quá trình quét mã QR.
+Yêu cầu máy có công nghệ ảo hóa. Nếu không, có thể sử dụng điện thoại thật nhưng phải xóa ứng dụng Momo đi và thực hiện như bước trên
